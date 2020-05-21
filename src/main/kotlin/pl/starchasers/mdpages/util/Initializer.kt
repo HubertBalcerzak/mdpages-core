@@ -10,6 +10,7 @@ import pl.starchasers.mdpages.content.exception.ObjectDoesntExistException
 import pl.starchasers.mdpages.content.repository.FolderRepository
 import pl.starchasers.mdpages.security.permission.GlobalPermissionType
 import pl.starchasers.mdpages.security.permission.PermissionService
+import pl.starchasers.mdpages.security.permission.PermissionTarget
 import pl.starchasers.mdpages.security.permission.PermissionType
 import pl.starchasers.mdpages.user.UserService
 import javax.annotation.PostConstruct
@@ -46,12 +47,17 @@ class Initializer(
     }
 
     private fun initDefaultScope() {
-        if (folderRepository.findFirstByFullPath(DEFAULT_SCOPE_PATH) == null)
-            contentService.createFolder(
-                Folder(
-                    true, mutableSetOf(), DEFAULT_SCOPE_PATH.removePrefix("/"), null
-                )
+        if (folderRepository.findFirstByFullPath(DEFAULT_SCOPE_PATH) == null) {
+
+            val defaultScope = Folder(
+                true, mutableSetOf(), DEFAULT_SCOPE_PATH.removePrefix("/"), null
             )
+            contentService.createFolder(defaultScope)
+
+            permissionService.grantScopePermission(defaultScope, PermissionType.WRITE, PermissionTarget.ANONYMOUS)
+            permissionService.grantScopePermission(defaultScope, PermissionType.READ, PermissionTarget.ANONYMOUS)
+        }
+
     }
 
     private fun injectDefaultScope() {
