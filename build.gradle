@@ -37,6 +37,9 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-reflect"
     implementation "com.github.ben-manes.caffeine:caffeine:2.8.1"
     implementation "org.springframework.boot:spring-boot-starter-thymeleaf"
+    implementation "org.elasticsearch.client:elasticsearch-rest-high-level-client:7.7.0"
+    implementation "org.elasticsearch.client:elasticsearch-rest-client:7.7.0"
+    implementation "org.elasticsearch:elasticsearch:7.7.0"
 
 
     testImplementation ("org.springframework.boot:spring-boot-starter-test:2.2.4.RELEASE")  {
