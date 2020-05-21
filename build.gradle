@@ -36,6 +36,7 @@ dependencies {
     implementation "com.fasterxml.jackson.module:jackson-module-kotlin"
     implementation "org.jetbrains.kotlin:kotlin-reflect"
     implementation "com.github.ben-manes.caffeine:caffeine:2.8.1"
+    implementation "org.springframework.boot:spring-boot-starter-thymeleaf"
 
 
     testImplementation ("org.springframework.boot:spring-boot-starter-test:2.2.4.RELEASE")  {
