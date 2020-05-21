@@ -7,7 +7,7 @@ import javax.persistence.Entity
 
 @Entity
 class Page(
-    @Column(columnDefinition = "TEXT", nullable = false, unique = false)
+    @Column(columnDefinition = "MEDIUMTEXT", nullable = false, unique = false)
     var content: String,
 
     @Column(columnDefinition = "DATETIME", nullable = false, unique = false)
