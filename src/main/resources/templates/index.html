@@ -2,9 +2,58 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8"/>
-    <title>Title</title>
+    <title>Searching</title>
+    <meta name="description" content="" />
+    <meta name="keywords"  content="IE=edge,chrome=1"/>
+    <link rel="stylesheet" href="styles.css" type="text/css"/>
+    <link rel="stylesheet" href="fontawesome-free-5.13.0-web/css/all.min.css">
+    <link href="bootstrap-4.5.0-dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
+
 <body>
 
+    <header>
+        <div>
+            <form action="https://google.com/search" method="get">
+                <input type="text" placeholder="Przeszukaj MD-Project">
+                <button type="submit"><i class="fas fa-search fa-2x"></i></button>
+            </form>
+        </div>
+    </header>
+
+    <main>
+        <h1>Lista artykułów:</h1>
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item">Cras justo odio</li>
+            <li class="list-group-item">Dapibus ac facilisis in</li>
+            <li class="list-group-item">Morbi leo risus</li>
+            <li class="list-group-item">Porta ac consectetur ac</li>
+            <li class="list-group-item">Vestibulum at eros</li>
+            <li class="list-group-item">Cras justo odio</li>
+            <li class="list-group-item">Dapibus ac facilisis in</li>
+            <li class="list-group-item">Morbi leo risus</li>
+            <li class="list-group-item">Porta ac consectetur ac</li>
+            <li class="list-group-item">Vestibulum at eros</li>
+            <li class="list-group-item">Cras justo odio</li>
+            <li class="list-group-item">Dapibus ac facilisis in</li>
+            <li class="list-group-item">Morbi leo risus</li>
+            <li class="list-group-item">Porta ac consectetur ac</li>
+            <li class="list-group-item">Vestibulum at eros</li>
+        </ul>
+    </main>
+
+    <footer>
+        <fieldset class="display-pages">
+            <label class="pages">
+                Liczba wyszkuań na stronę:
+                   <select>
+                       <option value="5">5</option>
+                       <option value="10">10</option>
+                       <option value="50">50</option>
+                       <option value="100">100</option>
+                   </select>
+            </label>
+        </fieldset>
+    </footer>
+
 </body>
-</html>
