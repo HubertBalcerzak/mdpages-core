@@ -8,38 +8,53 @@
     <link rel="stylesheet" href="styles.css" type="text/css"/>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css" crossorigin="anonymous">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://unpkg.com/bootstrap-table@1.16.0/dist/bootstrap-table.min.css">
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/bootstrap-table@1.16.0/dist/bootstrap-table.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js" integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI" crossorigin="anonymous"></script>
 </head>
 
 <body>
 
     <header>
         <div>
-            <form action="https://google.com/search" method="get">
-                <input type="text" placeholder="Przeszukaj MDPages">
+            <form id="searchForm" onsubmit="">
+                <input id="searchInput" type="text" placeholder="Przeszukaj MDPages">
                 <button type="submit"><i class="fas fa-search fa-2x"></i></button>
             </form>
         </div>
     </header>
 
     <main>
-        <h1>Lista artykułów:</h1>
-        <ul class="list-group list-group-flush">
-            <li class="list-group-item">Cras justo odio</li>
-            <li class="list-group-item">Dapibus ac facilisis in</li>
-            <li class="list-group-item">Morbi leo risus</li>
-            <li class="list-group-item">Porta ac consectetur ac</li>
-            <li class="list-group-item">Vestibulum at eros</li>
-            <li class="list-group-item">Cras justo odio</li>
-            <li class="list-group-item">Dapibus ac facilisis in</li>
-            <li class="list-group-item">Morbi leo risus</li>
-            <li class="list-group-item">Porta ac consectetur ac</li>
-            <li class="list-group-item">Vestibulum at eros</li>
-            <li class="list-group-item">Cras justo odio</li>
-            <li class="list-group-item">Dapibus ac facilisis in</li>
-            <li class="list-group-item">Morbi leo risus</li>
-            <li class="list-group-item">Porta ac consectetur ac</li>
-            <li class="list-group-item">Vestibulum at eros</li>
-        </ul>
+<!--        <h1>Lista artykułów:</h1>-->
+<!--        <ul class="list-group list-group-flush">-->
+<!--            <li class="list-group-item">Cras justo odio</li>-->
+<!--            <li class="list-group-item">Dapibus ac facilisis in</li>-->
+<!--            <li class="list-group-item">Morbi leo risus</li>-->
+<!--            <li class="list-group-item">Porta ac consectetur ac</li>-->
+<!--            <li class="list-group-item">Vestibulum at eros</li>-->
+<!--            <li class="list-group-item">Cras justo odio</li>-->
+<!--            <li class="list-group-item">Dapibus ac facilisis in</li>-->
+<!--            <li class="list-group-item">Morbi leo risus</li>-->
+<!--            <li class="list-group-item">Porta ac consectetur ac</li>-->
+<!--            <li class="list-group-item">Vestibulum at eros</li>-->
+<!--            <li class="list-group-item">Cras justo odio</li>-->
+<!--            <li class="list-group-item">Dapibus ac facilisis in</li>-->
+<!--            <li class="list-group-item">Morbi leo risus</li>-->
+<!--            <li class="list-group-item">Porta ac consectetur ac</li>-->
+<!--            <li class="list-group-item">Vestibulum at eros</li>-->
+<!--        </ul>-->
+<!--        {"pages":[{"id":5,"name":"Tytul","dateModified":"2020-05-23T15:09:27"}]}-->
+        <table id="table">
+            <thead>
+            <tr>
+                <th data-field="id">ID</th>
+                <th data-field="name">Item Name</th>
+                <th data-field="dateModified">dateModified</th>
+            </tr>
+            </thead>
+        </table>
     </main>
 
     <footer>
@@ -55,12 +70,25 @@
             </label>
         </fieldset>
     </footer>
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js" integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI" crossorigin="anonymous"></script>
+
+
     <script>
-        fetch('/api/search')
-            .then(response => response.json())
-            .then(data => console.log(data))
+        // fetch('/api/search')
+        //     .then(response => response.json())
+        //     .then(data => console.log(data))
+
+        const form = $('#searchForm')
+        const input = $('#searchInput')
+        const $table = $('#table')
+
+        function queryPages(e) {
+            e.preventDefault()
+            fetch('api/search')
+                .then(response => response.json())
+                .then(data => $table.bootstrapTable({data: data["pages"]}))
+            return false
+        }
+
+        form.submit(queryPages)
     </script>
 </body>
