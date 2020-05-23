@@ -13,6 +13,7 @@
     <script src="https://unpkg.com/bootstrap-table@1.16.0/dist/bootstrap-table.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js" integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI" crossorigin="anonymous"></script>
+    <script src="https://momentjs.com/downloads/moment.min.js"></script>
 </head>
 
 <body>
@@ -27,31 +28,12 @@
     </header>
 
     <main>
-<!--        <h1>Lista artykułów:</h1>-->
-<!--        <ul class="list-group list-group-flush">-->
-<!--            <li class="list-group-item">Cras justo odio</li>-->
-<!--            <li class="list-group-item">Dapibus ac facilisis in</li>-->
-<!--            <li class="list-group-item">Morbi leo risus</li>-->
-<!--            <li class="list-group-item">Porta ac consectetur ac</li>-->
-<!--            <li class="list-group-item">Vestibulum at eros</li>-->
-<!--            <li class="list-group-item">Cras justo odio</li>-->
-<!--            <li class="list-group-item">Dapibus ac facilisis in</li>-->
-<!--            <li class="list-group-item">Morbi leo risus</li>-->
-<!--            <li class="list-group-item">Porta ac consectetur ac</li>-->
-<!--            <li class="list-group-item">Vestibulum at eros</li>-->
-<!--            <li class="list-group-item">Cras justo odio</li>-->
-<!--            <li class="list-group-item">Dapibus ac facilisis in</li>-->
-<!--            <li class="list-group-item">Morbi leo risus</li>-->
-<!--            <li class="list-group-item">Porta ac consectetur ac</li>-->
-<!--            <li class="list-group-item">Vestibulum at eros</li>-->
-<!--        </ul>-->
-<!--        {"pages":[{"id":5,"name":"Tytul","dateModified":"2020-05-23T15:09:27"}]}-->
+
         <table id="table">
             <thead>
             <tr>
-                <th data-field="id">ID</th>
-                <th data-field="name">Item Name</th>
-                <th data-field="dateModified">dateModified</th>
+                <th data-field="name">Tytuł dokumentu</th>
+                <th data-field="dateModified" data-formatter="dateFormat">Data Modyfikacji</th>
             </tr>
             </thead>
         </table>
@@ -64,8 +46,8 @@
                    <select>
                        <option value="5">5</option>
                        <option value="10">10</option>
+                       <option value="20">20</option>
                        <option value="50">50</option>
-                       <option value="100">100</option>
                    </select>
             </label>
         </fieldset>
@@ -73,13 +55,18 @@
 
 
     <script>
-        // fetch('/api/search')
-        //     .then(response => response.json())
-        //     .then(data => console.log(data))
+
+        function dateFormat(value, row, index) {
+            return moment(value).format('DD/MM/YYYY');
+        }
 
         const form = $('#searchForm')
         const input = $('#searchInput')
         const $table = $('#table')
+
+        $('#table').on('click-row.bs.table', function (e, row, elemtnt, field) {
+            window.location = "/document?id=" + row["id"]
+        })
 
         function queryPages(e) {
             e.preventDefault()
@@ -90,5 +77,7 @@
         }
 
         form.submit(queryPages)
+
     </script>
+
 </body>

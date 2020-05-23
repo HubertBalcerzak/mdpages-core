@@ -10,4 +10,7 @@ class IndexController(){
     @GetMapping("/")
     fun index(): String = "index.html"
 
+    @GetMapping("/document")
+    fun document(): String = "document.html"
+
 }

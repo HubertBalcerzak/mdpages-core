@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Searching</title>
+    <meta name="description" content="" />
+    <meta name="keywords"  content="IE=edge,chrome=1"/>
+    <link rel="stylesheet" href="styles.css" type="text/css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js" integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/showdown@1.9.0/dist/showdown.min.js" crossorigin="anonymous"></script>
+    <script src="https://momentjs.com/downloads/moment.min.js"></script>
+</head>
+
+<body>
+
+    <header>
+        <button type="submit" value="Back">Back</button>
+    </header>
+
+    <h1 id="titleh1">Tytuł</h1>
+    <h2 id="creation_date">Creation Date</h2>
+
+    <main id="mainID"></main>
+
+
+    <script>
+
+        var getUrlParameter = function getUrlParameter(sParam) {
+            var sPageURL = window.location.search.substring(1),
+                sURLVariables = sPageURL.split('&'),
+                sParameterName,
+                i;
+
+            for (i = 0; i < sURLVariables.length; i++) {
+                sParameterName = sURLVariables[i].split('=');
+
+                if (sParameterName[0] === sParam) {
+                    return sParameterName[1] === undefined ? true : decodeURIComponent(sParameterName[1]);
+                }
+            }
+        };
+
+        const titleh1 = $('#titleh1')
+        const creationDate = $('#creation_date')
+        const converter = new showdown.Converter()
+        const id = getUrlParameter("id")
+        const main = $('#mainID')
+
+        function showPage(page) {
+            titleh1.text(page["title"])
+            creationDate.text(moment(page["dateCreated"]).format('DD/MM/YYYY'))
+            main.html(converter.makeHtml(page["content"]))
+        }
+
+        if(!id) {
+            window.location = "/"
+        } else {
+            fetch('/api/content/page/' + id)
+                .then(response => response.json())
+                .then(data => showPage(data["page"]))
+
+        }
+
+    </script>
+
+
+</body>
