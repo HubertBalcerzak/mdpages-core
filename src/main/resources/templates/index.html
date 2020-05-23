@@ -29,7 +29,7 @@
 
     <main>
 
-        <table id="table">
+        <table id="table" class="table-hover table-borderless" data-header-style="headerStyle">
             <thead>
             <tr>
                 <th data-field="name">Tytuł dokumentu</th>
@@ -55,6 +55,18 @@
 
 
     <script>
+
+        function headerStyle(column) {
+            return {
+
+                name: {
+                    css: {background: '#2F2F2F'}
+                },
+                dateModified: {
+                    css: {background: '#2F2F2F'}
+                }
+            }[column.field]
+        }
 
         function dateFormat(value, row, index) {
             return moment(value).format('DD/MM/YYYY');
