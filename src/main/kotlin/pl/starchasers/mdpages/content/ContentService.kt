@@ -64,7 +64,8 @@ class ContentServiceImpl(
     private val pageRepository: PageRepository,
     private val mdObjectRepository: ObjectRepository,
     private val permissionRepository: PermissionRepository,
-    private val permissionService: PermissionService
+    private val permissionService: PermissionService,
+    private val searchService: SearchService
 ) :
     ContentService {
 
@@ -153,6 +154,8 @@ class ContentServiceImpl(
         pageRepository.save(page)
         page.parent?.children?.add(page) ?: throw MalformedPageException()
         folderRepository.save(page.parent ?: throw MalformedPageException())
+
+        searchService.indexPage(page)
     }
 
     @Transactional
@@ -164,6 +167,8 @@ class ContentServiceImpl(
         val page = Page(content, LocalDateTime.now(), LocalDateTime.now(), false, title, parent, parent.scope ?: parent)
         pageRepository.save(page)
         parent.children.add(page)
+
+        searchService.indexPage(page)
         return page
     }
 

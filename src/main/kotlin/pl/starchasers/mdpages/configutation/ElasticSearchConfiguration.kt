@@ -11,13 +11,16 @@ import org.springframework.context.annotation.Configuration
 
 @Configuration
 class ElasticsearchConfig {
-    @Value("\${elasticsearch.url}")
+    @Value("\${elasticsearch.host}")
     private val elasticsearchHost: String? = null
+
+    @Value("\${elasticsearch.port}")
+    private val elasticsearchPort: Int = 0
 
     @Bean(destroyMethod = "close")
     fun client(): RestHighLevelClient {
         return RestHighLevelClient(
-            RestClient.builder(HttpHost(elasticsearchHost))
+            RestClient.builder(HttpHost(elasticsearchHost, elasticsearchPort))
         )
     }
 }
