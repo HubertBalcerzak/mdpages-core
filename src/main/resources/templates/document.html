@@ -51,7 +51,7 @@
         const main = $('#mainID')
 
         function showPage(page) {
-            titleh1.text(page["title"])
+            titleh1.text(page["name"])
             creationDate.text(moment(page["dateCreated"]).format('DD/MM/YYYY'))
             main.html(converter.makeHtml(page["content"]))
         }
