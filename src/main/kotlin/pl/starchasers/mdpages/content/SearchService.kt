@@ -1,5 +1,6 @@
 package pl.starchasers.mdpages.content
 
+import org.elasticsearch.action.delete.DeleteRequest
 import org.elasticsearch.action.index.IndexRequest
 import org.elasticsearch.action.search.SearchRequest
 import org.elasticsearch.client.RequestOptions
@@ -12,6 +13,8 @@ import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Service
 import pl.starchasers.mdpages.content.data.Page
+import pl.starchasers.mdpages.content.data.dto.PageSearchResultDTO
+import pl.starchasers.mdpages.content.data.dto.SearchResponseDTO
 import pl.starchasers.mdpages.content.repository.PageRepository
 import java.time.LocalDate
 
@@ -19,7 +22,7 @@ const val DOCUMENT_INDEX_NAME = "mdpages_documents"
 
 interface SearchService {
 
-    fun execSearch(query: String?, pageSize: Int, page: Int): List<Page>
+    fun execSearch(query: String?, pageSize: Int, page: Int): SearchResponseDTO
 
     fun indexPage(page: Page)
 
@@ -52,19 +55,32 @@ class SearchServiceImpl(
         )
     }
 
-    override fun execSearch(query: String?, pageSize: Int, page: Int): List<Page> {
-        return if (query == null || query.isBlank()) {
-            pageRepository.findAll(PageRequest.of(0, 10)).content
+    override fun execSearch(query: String?, pageSize: Int, page: Int): SearchResponseDTO {
+        val pages: List<Page>
+        val totalPages: Int
+        if (query == null || query.isBlank()) {
+            pages = pageRepository.findAll(PageRequest.of(page, pageSize)).content
+            totalPages = pageRepository.count().toInt();
         } else {
 
             val response = restClient.search(searchSourceBuilderQuery(query, pageSize, page), RequestOptions.DEFAULT)
 
             if (response.status() == RestStatus.OK) {
-                response.hits.mapNotNull { pageRepository.findFirstById(it.id.toLong()) }.toList()
+                pages = response.hits.mapNotNull { pageRepository.findFirstById(it.id.toLong()) }.toList()
+                totalPages = response.hits.totalHits?.value?.toInt()
+                    ?: throw RuntimeException("Error when executing search query");
             } else {
                 throw RuntimeException("Error when executing search query");
             }
         }
+
+        return SearchResponseDTO(pages.map {
+            PageSearchResultDTO(
+                it.id,
+                it.name,
+                it.lastEdited
+            )
+        }, totalPages)
     }
 
     private fun searchSourceBuilderQuery(query: String, pageSize: Int, page: Int): SearchRequest {
