@@ -13,6 +13,8 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js" integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/showdown@1.9.0/dist/showdown.min.js" crossorigin="anonymous"></script>
     <script src="https://momentjs.com/downloads/moment.min.js"></script>
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.0.3/styles/default.min.css">
+    <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.0.3/highlight.min.js"></script>
 </head>
 
 <body>
@@ -29,6 +31,7 @@
 
     <script>
 
+
         var getUrlParameter = function getUrlParameter(sParam) {
             var sPageURL = window.location.search.substring(1),
                 sURLVariables = sPageURL.split('&'),
@@ -44,9 +47,38 @@
             }
         };
 
+        showdown.extension('codehighlight', function() {
+            function htmlunencode(text) {
+                return (
+                    text
+                        .replace(/&amp;/g, '&')
+                        .replace(/&lt;/g, '<')
+                        .replace(/&gt;/g, '>')
+                );
+            }
+            return [
+                {
+                    type: 'output',
+                    filter: function (text, converter, options) {
+                        // use new shodown's regexp engine to conditionally parse codeblocks
+                        var left  = '<pre><code\\b[^>]*>',
+                            right = '</code></pre>',
+                            flags = 'g',
+                            replacement = function (wholeMatch, match, left, right) {
+                                // unescape match to prevent double escaping
+                                match = htmlunencode(match);
+                                return left + hljs.highlightAuto(match).value + right;
+                            };
+                        return showdown.helper.replaceRecursiveRegExp(text, replacement, left, right, flags);
+                    }
+                }
+            ];
+        });
+        showdown.setFlavor('github')
+
         const titleh1 = $('#titleh1')
         const creationDate = $('#creation_date')
-        const converter = new showdown.Converter()
+        const converter = new showdown.Converter({ extensions: ['codehighlight'] })
         const id = getUrlParameter("id")
         const main = $('#mainID')
 
@@ -64,6 +96,8 @@
                 .then(data => showPage(data["page"]))
 
         }
+
+
 
     </script>
 

@@ -9,6 +9,8 @@ header {
     top: 0;
     width: 100%;
     margin-bottom: 20px;
+    background-color: #5A5A5A;
+    z-index: 99;
 }
 header > div {
     width: 90%;
