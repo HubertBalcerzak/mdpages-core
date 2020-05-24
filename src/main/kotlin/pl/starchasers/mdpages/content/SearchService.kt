@@ -42,14 +42,14 @@ class SearchServiceImpl(
         } else {
             val searchRequest = SearchRequest(DOCUMENT_INDEX_NAME)
             val searchSourceBuidler = SearchSourceBuilder()
-            searchSourceBuidler.query(
-                QueryBuilders
-                    .simpleQueryStringQuery(query)
-                    .field("content")
-            )
+                .query(
+                    QueryBuilders
+                        .simpleQueryStringQuery(query)
+                        .field("content")
+                        .field("title").boost(5f)
+                ).fetchSource(false)
             searchRequest.source(searchSourceBuidler)
             val response = restClient.search(searchRequest, RequestOptions.DEFAULT)
-
 
             if (response.status() == RestStatus.OK) {
                 return response.hits.mapNotNull { pageRepository.findFirstById(it.id.toLong()) }.toList()
