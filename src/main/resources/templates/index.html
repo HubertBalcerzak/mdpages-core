@@ -76,20 +76,28 @@
         const input = $('#searchInput')
         const $table = $('#table')
 
-        $('#table').on('click-row.bs.table', function (e, row, elemtnt, field) {
+        $('#table').on('click-row.bs.table', function (e, row, element, field) {
             window.location = "/document?id=" + row["id"]
+        })
+
+        $(document).ready(function () {
+            fetch('api/search')
+                .then(response => response.json())
+                .then(data => $table.bootstrapTable({data: data["pages"]}))
+
+            return false
         })
 
         function queryPages(e) {
             e.preventDefault()
             fetch('api/search?query='+input.val())
                 .then(response => response.json())
-                .then(data => $table.bootstrapTable({data: data["pages"]}))
+                .then(data => $table.bootstrapTable('load', data["pages"]))
             return false
         }
 
-        form.submit(queryPages)
 
+        form.submit(queryPages)
     </script>
 
 </body>
