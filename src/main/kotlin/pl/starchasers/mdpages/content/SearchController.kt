@@ -11,8 +11,8 @@ class SearchController(
     private val searchService: SearchService
 ) {
     @GetMapping("/api/search")
-    fun search(@RequestParam query: String?) = SearchResponseDTO(
-        searchService.execSearch(query).map {
+    fun search(@RequestParam query: String?, @RequestParam size: Int?, @RequestParam page: Int?) = SearchResponseDTO(
+        searchService.execSearch(query, size ?: 10, page ?: 0).map {
             PageSearchResultDTO(
                 it.id,
                 it.name,

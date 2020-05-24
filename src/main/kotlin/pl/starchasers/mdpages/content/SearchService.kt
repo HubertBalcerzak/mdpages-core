@@ -19,7 +19,7 @@ const val DOCUMENT_INDEX_NAME = "mdpages_documents"
 
 interface SearchService {
 
-    fun execSearch(query: String?): List<Page>
+    fun execSearch(query: String?, pageSize: Int, page: Int): List<Page>
 
     fun indexPage(page: Page)
 
@@ -52,12 +52,12 @@ class SearchServiceImpl(
         )
     }
 
-    override fun execSearch(query: String?): List<Page> {
+    override fun execSearch(query: String?, pageSize: Int, page: Int): List<Page> {
         return if (query == null || query.isBlank()) {
             pageRepository.findAll(PageRequest.of(0, 10)).content
         } else {
 
-            val response = restClient.search(searchSourceBuilderQuery(query), RequestOptions.DEFAULT)
+            val response = restClient.search(searchSourceBuilderQuery(query, pageSize, page), RequestOptions.DEFAULT)
 
             if (response.status() == RestStatus.OK) {
                 response.hits.mapNotNull { pageRepository.findFirstById(it.id.toLong()) }.toList()
@@ -67,13 +67,13 @@ class SearchServiceImpl(
         }
     }
 
-    private fun searchSourceBuilderQuery(query: String): SearchRequest {
+    private fun searchSourceBuilderQuery(query: String, pageSize: Int, page: Int): SearchRequest {
         val searchRequest = SearchRequest(DOCUMENT_INDEX_NAME)
         val queryBuilder: QueryBuilder = when {
             regexTitleSearch.matches(query) -> {
                 val (title) = regexTitleSearch.find(query)!!.destructured
                 QueryBuilders
-                    .simpleQueryStringQuery(title) //1 grupa
+                    .simpleQueryStringQuery(title)
                     .field("title")
             }
             regexDateSearch.matches(query) -> {
@@ -103,6 +103,8 @@ class SearchServiceImpl(
             SearchSourceBuilder()
                 .query(queryBuilder)
                 .fetchSource(false)
+                .size(pageSize)
+                .from(pageSize * page)
         )
     }
 
