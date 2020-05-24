@@ -40,16 +40,8 @@ class SearchServiceImpl(
         if (query == null || query.isBlank()) {
             return pageRepository.findAll(PageRequest.of(0, 10)).content
         } else {
-            val searchRequest = SearchRequest(DOCUMENT_INDEX_NAME)
-            val searchSourceBuidler = SearchSourceBuilder()
-                .query(
-                    QueryBuilders
-                        .simpleQueryStringQuery(query)
-                        .field("content")
-                        .field("title").boost(5f)
-                ).fetchSource(false)
-            searchRequest.source(searchSourceBuidler)
-            val response = restClient.search(searchRequest, RequestOptions.DEFAULT)
+
+            val response = restClient.search(searchSourceBuilderQuery(query), RequestOptions.DEFAULT)
 
             if (response.status() == RestStatus.OK) {
                 return response.hits.mapNotNull { pageRepository.findFirstById(it.id.toLong()) }.toList()
@@ -57,6 +49,39 @@ class SearchServiceImpl(
                 throw RuntimeException("Error when executing search query");
             }
         }
+    }
+
+    private fun searchSourceBuilderQuery(query: String) : SearchRequest {
+        val searchRequest = SearchRequest(DOCUMENT_INDEX_NAME)
+        val builder = when {
+            Regex("title:(.+)").matches(query) -> {
+                SearchSourceBuilder()
+                    .query(
+                        QueryBuilders
+                            .simpleQueryStringQuery() //1 grupa
+                            .field("title")
+                    ).fetchSource(false)
+            }
+            Regex("date:([0-9]{1,2})[/]([0-9]{1,2})[/]([0-9]{4})").matches(query) -> {
+                SearchSourceBuilder()
+                    .query(
+                        QueryBuilders
+                            .simpleQueryStringQuery() //1 grupa
+                            .field("date")
+                    ).fetchSource(false)
+            }
+            else -> {
+                SearchSourceBuilder()
+                    .query(
+                        QueryBuilders
+                            .simpleQueryStringQuery(query)
+                            .field("content")
+                            .field("title").boost(5f)
+                    ).fetchSource(false)
+            }
+        }
+        return searchRequest.source(builder)
+
     }
 
     override fun indexPage(page: Page) {
