@@ -1,14 +1,20 @@
 package pl.starchasers.mdpages.content
 
+import org.apache.lucene.util.QueryBuilder
 import org.elasticsearch.action.index.IndexRequest
+import org.elasticsearch.action.search.SearchRequest
 import org.elasticsearch.client.RequestOptions
 import org.elasticsearch.client.RestClient
 import org.elasticsearch.client.RestHighLevelClient
+import org.elasticsearch.index.query.QueryBuilders
+import org.elasticsearch.rest.RestStatus
+import org.elasticsearch.search.builder.SearchSourceBuilder
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Service
 import pl.starchasers.mdpages.content.data.Page
 import pl.starchasers.mdpages.content.repository.PageRepository
+import java.lang.RuntimeException
 import javax.swing.plaf.multi.MultiDesktopPaneUI
 
 const val DOCUMENT_INDEX_NAME = "mdpages_documents"
@@ -34,7 +40,22 @@ class SearchServiceImpl(
         if (query == null || query.isBlank()) {
             return pageRepository.findAll(PageRequest.of(0, 10)).content
         } else {
-            TODO()
+            val searchRequest = SearchRequest(DOCUMENT_INDEX_NAME)
+            val searchSourceBuidler = SearchSourceBuilder()
+            searchSourceBuidler.query(
+                QueryBuilders
+                    .simpleQueryStringQuery(query)
+                    .field("content")
+            )
+            searchRequest.source(searchSourceBuidler)
+            val response = restClient.search(searchRequest, RequestOptions.DEFAULT)
+
+
+            if (response.status() == RestStatus.OK) {
+                return response.hits.mapNotNull { pageRepository.findFirstById(it.id.toLong()) }.toList()
+            } else {
+                throw RuntimeException("Error when executing search query");
+            }
         }
     }
 

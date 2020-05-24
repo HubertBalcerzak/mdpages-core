@@ -82,7 +82,7 @@
 
         function queryPages(e) {
             e.preventDefault()
-            fetch('api/search')
+            fetch('api/search?query='+input.val())
                 .then(response => response.json())
                 .then(data => $table.bootstrapTable({data: data["pages"]}))
             return false
