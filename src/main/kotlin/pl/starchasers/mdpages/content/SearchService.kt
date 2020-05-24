@@ -1,11 +1,10 @@
 package pl.starchasers.mdpages.content
 
-import org.apache.lucene.util.QueryBuilder
 import org.elasticsearch.action.index.IndexRequest
 import org.elasticsearch.action.search.SearchRequest
 import org.elasticsearch.client.RequestOptions
-import org.elasticsearch.client.RestClient
 import org.elasticsearch.client.RestHighLevelClient
+import org.elasticsearch.index.query.QueryBuilder
 import org.elasticsearch.index.query.QueryBuilders
 import org.elasticsearch.rest.RestStatus
 import org.elasticsearch.search.builder.SearchSourceBuilder
@@ -14,8 +13,7 @@ import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Service
 import pl.starchasers.mdpages.content.data.Page
 import pl.starchasers.mdpages.content.repository.PageRepository
-import java.lang.RuntimeException
-import javax.swing.plaf.multi.MultiDesktopPaneUI
+import java.time.LocalDate
 
 const val DOCUMENT_INDEX_NAME = "mdpages_documents"
 
@@ -36,7 +34,8 @@ class SearchServiceImpl(
 ) : SearchService {
 
     val regexTitleSearch = Regex("title:(.+)")
-    val regexDateSearch = Regex("date:([0-9]{1,2})[./]([0-9]{1,2})[./]([0-9]{4})")
+    val regexDateSearch = Regex("date:(|>|<)([0-9]{1,2})[./]([0-9]{1,2})[./]([0-9]{4})")
+    val regexDateAndContentSearch = Regex("date:(|>|<)([0-9]{1,2})[./]([0-9]{1,2})[./]([0-9]{4}) (.+)")
 
     override fun indexPage(page: Page) {
         restClient.index(
@@ -46,7 +45,7 @@ class SearchServiceImpl(
                     mapOf(
                         Pair("content", page.content),
                         Pair("title", page.name),
-                        Pair("date", page.lastEdited)
+                        Pair("date", page.lastEdited.toLocalDate())
                     )
                 ),
             RequestOptions.DEFAULT
@@ -54,14 +53,14 @@ class SearchServiceImpl(
     }
 
     override fun execSearch(query: String?): List<Page> {
-        if (query == null || query.isBlank()) {
-            return pageRepository.findAll(PageRequest.of(0, 10)).content
+        return if (query == null || query.isBlank()) {
+            pageRepository.findAll(PageRequest.of(0, 10)).content
         } else {
 
             val response = restClient.search(searchSourceBuilderQuery(query), RequestOptions.DEFAULT)
 
             if (response.status() == RestStatus.OK) {
-                return response.hits.mapNotNull { pageRepository.findFirstById(it.id.toLong()) }.toList()
+                response.hits.mapNotNull { pageRepository.findFirstById(it.id.toLong()) }.toList()
             } else {
                 throw RuntimeException("Error when executing search query");
             }
@@ -70,37 +69,55 @@ class SearchServiceImpl(
 
     private fun searchSourceBuilderQuery(query: String): SearchRequest {
         val searchRequest = SearchRequest(DOCUMENT_INDEX_NAME)
-        val builder = when {
+        val queryBuilder: QueryBuilder = when {
             regexTitleSearch.matches(query) -> {
                 val (title) = regexTitleSearch.find(query)!!.destructured
-                SearchSourceBuilder()
-                    .query(
-                        QueryBuilders
-                            .simpleQueryStringQuery(title) //1 grupa
-                            .field("title")
-                    ).fetchSource(false)
+                QueryBuilders
+                    .simpleQueryStringQuery(title) //1 grupa
+                    .field("title")
             }
             regexDateSearch.matches(query) -> {
-                val (day, month, year) = regexDateSearch.find(query)!!.destructured
-                SearchSourceBuilder()
-                    .query(
-                        QueryBuilders
-                            .simpleQueryStringQuery(TODO()) //1 grupa
-                            .field("date")
-                    ).fetchSource(false)
+                val (symbol, day, month, year) = regexDateSearch.find(query)!!.destructured
+                getDateRangeQuery(symbol, day, month, year)
+            }
+            regexDateAndContentSearch.matches(query) -> {
+                val (symbol, day, month, year, contentQuery) = regexDateAndContentSearch
+                    .find(query)!!.destructured
+                QueryBuilders.boolQuery()
+                    .must(getDateRangeQuery(symbol, day, month, year))
+                    .must(
+                        QueryBuilders.simpleQueryStringQuery(contentQuery)
+                            .field("content")
+                            .field("title")
+                            .boost(5f)
+                    )
             }
             else -> {
-                SearchSourceBuilder()
-                    .query(
-                        QueryBuilders
-                            .simpleQueryStringQuery(query)
-                            .field("content")
-                            .field("title").boost(5f)
-                    ).fetchSource(false)
+                QueryBuilders
+                    .simpleQueryStringQuery(query)
+                    .field("content")
+                    .field("title").boost(5f)
             }
         }
-        return searchRequest.source(builder)
+        return searchRequest.source(
+            SearchSourceBuilder()
+                .query(queryBuilder)
+                .fetchSource(false)
+        )
+    }
 
+    private fun getDateRangeQuery(
+        symbol: String,
+        day: String,
+        month: String,
+        year: String
+    ): QueryBuilder {
+        val date = LocalDate.of(year.toInt(), month.toInt(), day.toInt())
+        return when (symbol) {
+            ">" -> QueryBuilders.rangeQuery("date").gt(date)
+            "<" -> QueryBuilders.rangeQuery("date").lt(date)
+            else -> QueryBuilders.matchQuery("date", date)
+        }
     }
 
     override fun recreateIndex() {
