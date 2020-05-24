@@ -35,6 +35,23 @@ class SearchServiceImpl(
 
 ) : SearchService {
 
+    val regexTitleSearch = Regex("title:(.+)")
+    val regexDateSearch = Regex("date:([0-9]{1,2})[./]([0-9]{1,2})[./]([0-9]{4})")
+
+    override fun indexPage(page: Page) {
+        restClient.index(
+            IndexRequest(DOCUMENT_INDEX_NAME)
+                .id(page.id.toString())
+                .source(
+                    mapOf(
+                        Pair("content", page.content),
+                        Pair("title", page.name),
+                        Pair("date", page.lastEdited)
+                    )
+                ),
+            RequestOptions.DEFAULT
+        )
+    }
 
     override fun execSearch(query: String?): List<Page> {
         if (query == null || query.isBlank()) {
@@ -51,22 +68,24 @@ class SearchServiceImpl(
         }
     }
 
-    private fun searchSourceBuilderQuery(query: String) : SearchRequest {
+    private fun searchSourceBuilderQuery(query: String): SearchRequest {
         val searchRequest = SearchRequest(DOCUMENT_INDEX_NAME)
         val builder = when {
-            Regex("title:(.+)").matches(query) -> {
+            regexTitleSearch.matches(query) -> {
+                val (title) = regexTitleSearch.find(query)!!.destructured
                 SearchSourceBuilder()
                     .query(
                         QueryBuilders
-                            .simpleQueryStringQuery() //1 grupa
+                            .simpleQueryStringQuery(title) //1 grupa
                             .field("title")
                     ).fetchSource(false)
             }
-            Regex("date:([0-9]{1,2})[/]([0-9]{1,2})[/]([0-9]{4})").matches(query) -> {
+            regexDateSearch.matches(query) -> {
+                val (day, month, year) = regexDateSearch.find(query)!!.destructured
                 SearchSourceBuilder()
                     .query(
                         QueryBuilders
-                            .simpleQueryStringQuery() //1 grupa
+                            .simpleQueryStringQuery(TODO()) //1 grupa
                             .field("date")
                     ).fetchSource(false)
             }
@@ -82,20 +101,6 @@ class SearchServiceImpl(
         }
         return searchRequest.source(builder)
 
-    }
-
-    override fun indexPage(page: Page) {
-        restClient.index(
-            IndexRequest(DOCUMENT_INDEX_NAME)
-                .id(page.id.toString())
-                .source(
-                    mapOf(
-                        Pair("content", page.content),
-                        Pair("title", page.name)
-                    )
-                ),
-            RequestOptions.DEFAULT
-        )
     }
 
     override fun recreateIndex() {
