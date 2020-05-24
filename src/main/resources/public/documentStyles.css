@@ -1,0 +1,46 @@
+body{
+    margin: 0 !important;
+    background-color: #646464 !important;
+    color: #ffffff !important;
+}
+
+a {
+    color: black !important;
+    text-decoration: none;
+}
+
+header {
+    position: sticky;
+    top: 0;
+    width: 100%;
+    margin-bottom: 20px;
+    background-color: #5A5A5A;
+}
+
+header > div {
+    width: 90%;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    margin-right: auto !important;
+    margin-left: auto !important;
+    margin-top: 0;
+    align-content: center;
+}
+
+header > div > h1 {
+    text-align: center;
+}
+
+header > div > h2 {
+    text-align: right;
+}
+
+header > div > h2 {
+    color: #797979;
+}
+
+main {
+    margin-left: 5%;
+    margin-right: 5%;
+    font-size: 25px;
+}
