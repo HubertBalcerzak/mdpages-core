@@ -27,6 +27,8 @@ interface SearchService {
 
     fun indexPage(page: Page)
 
+    fun deleteIndexedPage(page: Page)
+
     fun recreateIndex()
 }
 
@@ -54,6 +56,10 @@ class SearchServiceImpl(
                 ),
             RequestOptions.DEFAULT
         )
+    }
+
+    override fun deleteIndexedPage(page: Page) {
+        restClient.delete(DeleteRequest(DOCUMENT_INDEX_NAME, page.id.toString()), RequestOptions.DEFAULT)
     }
 
     override fun execSearch(query: String?, pageSize: Int, page: Int): SearchResponseDTO {
@@ -107,11 +113,13 @@ class SearchServiceImpl(
                             .field("content")
                             .field("title")
                             .boost(5f)
-                            .flags(SimpleQueryStringFlag.AND,
-                            SimpleQueryStringFlag.NOT,
-                            SimpleQueryStringFlag.OR,
-                            SimpleQueryStringFlag.PHRASE,
-                            SimpleQueryStringFlag.PRECEDENCE)
+                            .flags(
+                                SimpleQueryStringFlag.AND,
+                                SimpleQueryStringFlag.NOT,
+                                SimpleQueryStringFlag.OR,
+                                SimpleQueryStringFlag.PHRASE,
+                                SimpleQueryStringFlag.PRECEDENCE
+                            )
                     )
             }
             else -> {
@@ -119,11 +127,13 @@ class SearchServiceImpl(
                     .simpleQueryStringQuery(query)
                     .field("content")
                     .field("title").boost(5f)
-                    .flags(SimpleQueryStringFlag.AND,
+                    .flags(
+                        SimpleQueryStringFlag.AND,
                         SimpleQueryStringFlag.NOT,
                         SimpleQueryStringFlag.OR,
                         SimpleQueryStringFlag.PHRASE,
-                        SimpleQueryStringFlag.PRECEDENCE)
+                        SimpleQueryStringFlag.PRECEDENCE
+                    )
             }
         }
         return searchRequest.source(

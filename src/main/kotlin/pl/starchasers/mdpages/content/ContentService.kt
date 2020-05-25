@@ -113,7 +113,7 @@ class ContentServiceImpl(
         validateFolderName(name)
 
         val parentObject: MdObject = getObject(parentId)
-        if(parentObject !is Folder) throw InvalidParentException()
+        if (parentObject !is Folder) throw InvalidParentException()
         val parentFolder: Folder = parentObject as Folder
 
         //Check name duplicate
@@ -164,7 +164,13 @@ class ContentServiceImpl(
         val parent = getFolder(parentId)
         if (parent.children.any { it.name == title }) throw ObjectNameTakenException()
 
-        val page = Page(content, LocalDateTime.now(), LocalDateTime.now(), false, title, parent, parent.scope ?: parent)
+        //TODO remove
+        //temporary workaround for test data generation
+        val modifiedDate = LocalDateTime.now().minusDays((Math.random()*3).toLong())
+
+        /////////////////////
+
+        val page = Page(content, modifiedDate, modifiedDate, false, title, parent, parent.scope ?: parent)
         pageRepository.save(page)
         parent.children.add(page)
 
@@ -172,6 +178,7 @@ class ContentServiceImpl(
         return page
     }
 
+    @Transactional
     override fun modifyPage(pageId: Long, title: String, newContent: String) {
         validatePageName(title)
 
@@ -182,11 +189,14 @@ class ContentServiceImpl(
             fullPath = (parent?.fullPath ?: "") + "/$name"
         }
         pageRepository.save(page)
+        searchService.indexPage(page)
     }
 
+    @Transactional
     override fun deletePage(pageId: Long) {
         val page = getPage(pageId)
         pageRepository.delete(page)//TODO non destructive deletion
+        searchService.deleteIndexedPage(page)
     }
 
     private fun validatePageName(name: String) {
