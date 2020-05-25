@@ -7,6 +7,7 @@ import org.elasticsearch.client.RequestOptions
 import org.elasticsearch.client.RestHighLevelClient
 import org.elasticsearch.index.query.QueryBuilder
 import org.elasticsearch.index.query.QueryBuilders
+import org.elasticsearch.index.query.SimpleQueryStringFlag
 import org.elasticsearch.rest.RestStatus
 import org.elasticsearch.search.builder.SearchSourceBuilder
 import org.springframework.beans.factory.annotation.Qualifier
@@ -106,6 +107,11 @@ class SearchServiceImpl(
                             .field("content")
                             .field("title")
                             .boost(5f)
+                            .flags(SimpleQueryStringFlag.AND,
+                            SimpleQueryStringFlag.NOT,
+                            SimpleQueryStringFlag.OR,
+                            SimpleQueryStringFlag.PHRASE,
+                            SimpleQueryStringFlag.PRECEDENCE)
                     )
             }
             else -> {
@@ -113,6 +119,11 @@ class SearchServiceImpl(
                     .simpleQueryStringQuery(query)
                     .field("content")
                     .field("title").boost(5f)
+                    .flags(SimpleQueryStringFlag.AND,
+                        SimpleQueryStringFlag.NOT,
+                        SimpleQueryStringFlag.OR,
+                        SimpleQueryStringFlag.PHRASE,
+                        SimpleQueryStringFlag.PRECEDENCE)
             }
         }
         return searchRequest.source(
