@@ -41,7 +41,7 @@ button {
     border: 2px solid #dddddd;
     border-radius: 5px;
     border-left: none;
-    background-color: #36b03c;
+    background-color: #007bff;
     color: white;
     letter-spacing: 2px;
     cursor: pointer;
@@ -59,21 +59,4 @@ main {
 
 h1 {
     font-size: 30px;
-}
-
-.pages {
-    display: block;
-    width: 100%;
-    padding: 5px;
-    margin-left: auto;
-    margin-right: auto;
-    text-align: center;
-}
-
-option {
-    text-align: center;
-}
-
-footer {
-    font-size: 20px;
 }
